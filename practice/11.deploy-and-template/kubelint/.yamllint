@@ -1,0 +1,14 @@
+---
+extends:
+  default
+
+rules:
+  indentation:
+    indent-sequences: consistent
+  line-length:
+    level: warning
+    allow-non-breakable-inline-mappings: true
+  braces:
+    max-spaces-inside: 1
+  empty-lines:
+    max-end: 1

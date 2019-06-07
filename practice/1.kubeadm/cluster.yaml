@@ -1,0 +1,6 @@
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: stable
+controlPlaneEndpoint: 172.22.<Ваш номер логина>.5:6443
+networking:
+  podSubnet: 10.244.0.0/16

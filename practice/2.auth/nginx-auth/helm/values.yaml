@@ -1,0 +1,63 @@
+# vim: ft=yaml.helm:
+# Default values for kube-nginx-auth.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+ldap:
+  url: ldap://ad.slurm.io:389
+  baseDN: OU=Users,OU=Kubernetes,DC=slurm,DC=local
+  bindDN: pjamm@slurm.local
+  bindPass: riTNnvDFU9850Ro
+  template: "(SAMAccountName=%(username)s)"
+  groupOU: Kubernetes
+
+image:
+  nginx:
+    repository: nginx
+    tag: stable
+  ldapConnector:
+    repository: slurmio/ldap-auth
+    tag: v1.2
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    ingress.kubernetes.io/affinity: cookie
+    ingress.kubernetes.io/secure-backends: "false"
+    ingress.kubernetes.io/session-cookie-hash: md5
+  path: /
+  hosts:
+    - login.k8s.m<Ваш номер логина>.slurm.io
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  nginx:
+    limits:
+     cpu: 200m
+     memory: 256Mi
+    requests:
+     cpu: 100m
+     memory: 128Mi
+  ldapConnector:
+    limits:
+     cpu: 200m
+     memory: 256Mi
+    requests:
+     cpu: 100m
+     memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

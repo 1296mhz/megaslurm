@@ -1,0 +1,4 @@
+pathspec==0.5.9
+PyYAML==5.1
+supermutes==0.2.5
+yamllint==1.15.0

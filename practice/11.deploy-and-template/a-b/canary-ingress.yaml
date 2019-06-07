@@ -1,0 +1,16 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: myingress-canary
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-cookie: tester
+spec:
+  rules:
+    - host: nginx.k8s.m<номер своего логина>.slurm.io
+      http:
+        paths:
+          - backend:
+              serviceName: myapp-canary
+              servicePort: 80

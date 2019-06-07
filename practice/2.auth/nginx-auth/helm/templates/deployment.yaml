@@ -1,0 +1,68 @@
+# vim: ft=yaml.helm:
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "kube-nginx-auth.fullname" . }}
+  labels:
+    app: {{ template "kube-nginx-auth.name" . }}
+    chart: {{ template "kube-nginx-auth.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "kube-nginx-auth.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "kube-nginx-auth.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ .Chart.Name }}-nginx
+          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+{{ toYaml .Values.resources.nginx | indent 12 }}
+          volumeMounts:
+          - mountPath: /etc/nginx
+            name: config-volume
+          - mountPath: /opt
+            name: api-ssl
+            readOnly: true
+        - name: {{ .Chart.Name }}-ldap-connector
+          image: "{{ .Values.image.ldapConnector.repository }}:{{ .Values.image.ldapConnector.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: PYTHONUNBUFFERED
+            value: "1"
+          resources:
+{{ toYaml .Values.resources.ldapConnector | indent 12 }}
+      volumes:
+      - secret:
+          defaultMode: 420
+          secretName: {{ template "kube-nginx-auth.fullname" . }}
+        name: config-volume
+      - name: api-ssl
+        secret:
+          defaultMode: 420
+          secretName: api-ssl
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
